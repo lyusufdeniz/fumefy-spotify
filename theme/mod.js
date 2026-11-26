@@ -96,6 +96,9 @@ const WIDGETS = [
   ["taskbar", "Taskbar player", "Small player on the taskbar, next to the clock"],
   ["desktop", "Desktop widget", "A bigger player card on the desktop; drag it anywhere"],
 ];
+// "Start with Windows" lives in the Windows registry, not in localStorage: the host reports it
+let autostartOn = null;
+M.setAutostart = (on) => { autostartOn = !!on; renderPanel(); };
 const widgetPrefs = () => { try { return { taskbar: true, desktop: false, ...JSON.parse(localStorage.getItem("mod.widgets") || "{}") }; } catch { return { taskbar: true, desktop: false }; } };
 function sendWidgets() { const w = widgetPrefs(); sendHost(`widgets ${JSON.stringify({ taskbar: !!w.taskbar, desktop: !!w.desktop })}`); }
 function setWidget(k, on) { localStorage.setItem("mod.widgets", JSON.stringify({ ...widgetPrefs(), [k]: on })); sendWidgets(); renderPanel(); }
@@ -153,12 +156,17 @@ function renderPanel() {
       <button class="mod-toggle${on ? " on" : ""}" data-w="${k}" role="switch" aria-checked="${on}">
         <span class="mod-tt"><span class="mod-name">${esc(name)}</span><span class="mod-desc">${esc(desc)}</span></span>
         <span class="mod-switch" aria-hidden="true"></span>
-      </button>`; }).join("")}</div>` : ""}
+      </button>`; }).join("")}
+      ${autostartOn === null ? "" : `<button class="mod-toggle${autostartOn ? " on" : ""}" data-auto role="switch" aria-checked="${autostartOn}">
+        <span class="mod-tt"><span class="mod-name">Start with Windows</span><span class="mod-desc">Open Spotify with Fumefy at sign-in, instead of plain Spotify</span></span>
+        <span class="mod-switch" aria-hidden="true"></span>
+      </button>`}</div>` : ""}
     <div class="mod-foot">Ctrl+Alt+T to open / close</div>`;
   p.querySelector(".mod-x").onclick = closePanel;
   p.querySelectorAll(".mod-tab").forEach((b) => (b.onclick = () => { activeTab = b.dataset.tab; renderPanel(); }));
   p.querySelectorAll(".mod-card").forEach((c) => (c.onclick = () => M.set(c.dataset.g, c.dataset.id)));
-  p.querySelectorAll(".mod-toggle").forEach((t) => (t.onclick = () => setWidget(t.dataset.w, t.getAttribute("aria-checked") !== "true")));
+  p.querySelectorAll(".mod-toggle[data-w]").forEach((t) => (t.onclick = () => setWidget(t.dataset.w, t.getAttribute("aria-checked") !== "true")));
+  p.querySelectorAll(".mod-toggle[data-auto]").forEach((t) => (t.onclick = () => { sendHost(`autostart ${autostartOn ? "off" : "on"}`); }));
 }
 
 /* ---------- Parts of the designs that need code ---------- */

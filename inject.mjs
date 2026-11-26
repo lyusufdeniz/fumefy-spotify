@@ -125,6 +125,14 @@ if (HOST) {
     const p = spawn("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden", "-File", join(DIR, "start.ps1")], { detached: true, stdio: "ignore", windowsHide: true });
     p.unref();
   };
+  // Start with Windows (autostart.ps1); the menu shows the result
+  const autostart = (flag) => {
+    const p = spawn("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", join(DIR, "autostart.ps1"), ...(flag ? [flag] : [])], { windowsHide: true });
+    let out = "";
+    p.stdout.on("data", (d) => (out += d));
+    p.on("exit", () => send("Runtime.evaluate", { expression: `window.__MOD && __MOD.setAutostart && __MOD.setAutostart(${out.trim() === "on"})` }));
+  };
+  setTimeout(() => autostart(""), 3000);   // tell the menu the current state
   const ALLOWED = /^(round \d{1,2}|alpha \d{2,3}|islands( -?\d{1,5},-?\d{1,5},\d{1,5},\d{1,5},\d{1,4}){0,12}|whole( \d{1,3} \d{1,3})?|size 1[234]|min|max|close|drag)$/;
 
   // Taskbar mini player: gets the current song, sends prev / play / next back
@@ -180,6 +188,8 @@ if (HOST) {
       return;
     }
     if (p === "restart") { restart(); return; }
+    const as = /^autostart (on|off)$/.exec(p);
+    if (as) { autostart(as[1] === "on" ? "-Enable" : "-Disable"); return; }
     if (ALLOWED.test(p)) helper.stdin.write(p + "\n");
   };
   process.on("exit", () => { try { helper.stdin.write("quit\n"); } catch {} try { tray?.stdin.write("quit\n"); } catch {} });

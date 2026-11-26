@@ -7,6 +7,9 @@ $dest = Join-Path $env:LOCALAPPDATA "Fumefy"
 Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'Fumefy|fumefy' -and $_.CommandLine -match 'inject\.mjs|window\.ps1|tray\.ps1' } |
   ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
 
+# take Fumefy out of Windows startup and give Spotify its own autostart back
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $dest "autostart.ps1") -Disable | Out-Null
+
 Remove-Item (Join-Path ([Environment]::GetFolderPath("Programs")) "Spotify (Fumefy).lnk") -Force
 Remove-Item (Join-Path ([Environment]::GetFolderPath("Desktop")) "Spotify (Fumefy).lnk") -Force
 

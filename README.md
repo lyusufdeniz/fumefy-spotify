@@ -28,6 +28,9 @@ stylesheet and a small script while the app runs. Close Spotify, open it normall
   play / next, volume (click the speaker for a slider, or scroll on the player).
 - **Desktop widget**: a bigger player card on your desktop; drag it anywhere, it remembers its place.
 - Both widgets can be switched on and off from the Fumefy menu inside Spotify (palette icon, or `Ctrl+Alt+T`).
+- **Starts with Windows** in place of Spotify's own autostart: Spotify opens minimized and already themed.
+  The installer asks, and you can switch it any time in the Fumefy menu. Turning it off gives Spotify its own
+  autostart back exactly as it was.
 - **Updates itself**: every start checks GitHub for a newer release and installs it; a small pill in Spotify tells you
   what changed. If a new version comes out while Spotify is open, the pill offers a one-click restart.
 
@@ -68,7 +71,8 @@ To update by hand, run `update.ps1` in `%LOCALAPPDATA%\Fumefy`.
 
 ## Uninstall
 
-Run `uninstall.ps1` in `%LOCALAPPDATA%\Fumefy`. It stops Fumefy, removes the shortcuts and the folder.
+Run `uninstall.ps1` in `%LOCALAPPDATA%\Fumefy`. It stops Fumefy, removes the shortcuts, the startup entry and the folder
+(Spotify's own autostart setting is restored).
 Spotify is left as it was.
 
 ## How it works

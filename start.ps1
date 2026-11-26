@@ -2,7 +2,8 @@
 # Usage:  .\start.ps1            -> normal start (what the "Spotify (Fumefy)" shortcut runs)
 #         .\start.ps1 -Watch     -> developer mode: watch theme/ and live-reload on save, runs in this window
 #         .\start.ps1 -NoUpdate  -> skip the update check
-param([switch]$Watch, [switch]$NoUpdate)
+#         .\start.ps1 -Startup   -> used at Windows sign-in (see autostart.ps1): Spotify opens minimized
+param([switch]$Watch, [switch]$NoUpdate, [switch]$Startup)
 
 $ErrorActionPreference = "Stop"
 $here = $PSScriptRoot
@@ -37,7 +38,9 @@ if (-not $node) {
 #    --remote-allow-origins is not passed, web pages in a browser cannot connect to it.
 Get-Process Spotify -ErrorAction SilentlyContinue | Stop-Process -Force
 Start-Sleep -Seconds 2
-Start-Process $spotify -ArgumentList "--remote-debugging-port=9222"
+$spArgs = @("--remote-debugging-port=9222")
+if ($Startup) { $spArgs += "--autostart", "--minimized" }   # same flags Spotify uses for its own autostart
+Start-Process $spotify -ArgumentList $spArgs
 
 $inject = Join-Path $here "inject.mjs"
 if ($Watch) {

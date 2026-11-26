@@ -92,6 +92,10 @@ foreach ($t in $targets) {
 }
 Step "Shortcuts added: Start menu and desktop -> 'Spotify (Fumefy)'"
 
+# 6) Start with Windows instead of plain Spotify (can be changed later in the Fumefy menu)
+$auto = Read-Host "  Start Spotify with Fumefy when Windows starts (replaces Spotify's own autostart)? [Y/n]"
+if ($auto -eq "" -or $auto -match '^[yY]') { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $dest "autostart.ps1") -Enable | Out-Null; Step "Starts with Windows" }
+
 Write-Host ""
 Write-Host "  Done. Open Spotify with the 'Spotify (Fumefy)' shortcut." -ForegroundColor White
 Write-Host "  Updates install themselves when you start it. To remove: run uninstall.ps1 in $dest" -ForegroundColor Gray
