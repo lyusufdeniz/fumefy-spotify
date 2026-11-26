@@ -68,7 +68,10 @@ if ($major -lt 22) {
 
 # 4) Shortcut icon: Spotify's own icon from this PC, recolored smoke gray (not shipped in the repo)
 $icon = Join-Path $dest "assets\spotify-fume.ico"
-try { & (Join-Path $dest "make-icon.ps1") -Out $icon | Out-Null } catch {}
+# run it in its own process with -ExecutionPolicy Bypass: when this installer is piped into "iex", the
+# default policy would block calling a .ps1 file from disk and the shortcut would fall back to a stock icon
+try { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $dest "make-icon.ps1") -Out $icon | Out-Null } catch {}
+if (Test-Path $icon) { & ie4uinit.exe -show 2>$null }   # refresh the icon cache so the new icon shows right away
 $iconLoc = if (Test-Path $icon) { "$icon,0" } else { "$env:WINDIR\System32\imageres.dll,103" }
 Step "Shortcut icon ready"
 
