@@ -2,3 +2,5 @@ widget.json
 assets/
 node_modules/
 *.log
+updated.json
+seen-version

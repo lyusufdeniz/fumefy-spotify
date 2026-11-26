@@ -46,6 +46,9 @@ try {
     Copy-Item $_.FullName -Destination $here -Recurse -Force
   }
   Set-Content -Path $localFile -Value $latest -Encoding ASCII
+  # tell the mod what changed; inject.mjs shows it as a toast inside Spotify and deletes the file
+  $note = (($rel.body -split "`n") | ForEach-Object { ($_ -replace '^\s*[-*]\s*', '').Trim() } | Where-Object { $_ -and $_ -notmatch '^(#|Install)' } | Select-Object -First 1)
+  @{ from = $local; to = $latest; note = "$note" } | ConvertTo-Json -Compress | Set-Content (Join-Path $here "updated.json") -Encoding UTF8
   Say "Fumefy updated to $latest."
 } finally {
   Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue

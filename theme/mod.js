@@ -620,6 +620,32 @@ html.mod-whole .body-drag-top { top: ${WHOLE_CUT}px !important; }
 `;
 }
 
+/* ---------- Toast: a small pill under the top bar (updates and other notices) ----------
+   M.toast({ title, text, action: { label, cmd } })  cmd is sent to the host (e.g. "restart").
+   Without an action it hides by itself after a few seconds. */
+const TOAST_ICON = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-3.75a.75.75 0 0 1 .75.75v2.69l1.72 1.72a.75.75 0 1 1-1.06 1.06l-1.94-1.94A.75.75 0 0 1 7.25 8V5A.75.75 0 0 1 8 4.25Z"/></svg>';
+const TOAST_DONE = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7 7a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06L6.25 10.69l6.47-6.47a.75.75 0 0 1 1.06 0Z"/></svg>';
+let toastTimer = 0;
+M.toast = ({ title = "", text = "", action = null, kind = "info", ms = 7000 } = {}) => {
+  let t = document.getElementById("mod-toast");
+  if (!t) {
+    t = document.createElement("div"); t.id = "mod-toast"; t.lang = "en";
+    t.setAttribute("role", "status"); t.setAttribute("aria-live", "polite");
+    document.body.appendChild(t);
+  }
+  t.innerHTML = `<span class="mt-ic">${kind === "done" ? TOAST_DONE : TOAST_ICON}</span>
+    <span class="mt-tx"><b>${esc(title)}</b>${text ? `<span>${esc(text)}</span>` : ""}</span>
+    ${action ? `<button class="mt-act" type="button">${esc(action.label)}</button>` : ""}
+    <button class="mt-x" type="button" aria-label="Dismiss">✕</button>`;
+  const hide = () => { t.classList.remove("on"); clearTimeout(toastTimer); };
+  t.querySelector(".mt-x").onclick = hide;
+  if (action) t.querySelector(".mt-act").onclick = () => { sendHost(action.cmd); t.querySelector(".mt-act").disabled = true; t.querySelector(".mt-act").textContent = action.busy || "…"; };
+  requestAnimationFrame(() => t.classList.add("on"));
+  setTimeout(() => t.classList.add("on"), 30);   // also when frames are paused (window in the background)
+  clearTimeout(toastTimer);
+  if (!action && ms) toastTimer = setTimeout(hide, ms);
+};
+
 /* ---------- Tooltips of the top bar ----------
    Spotify opens these above the button, which is inside the cut-off strip, so they were invisible.
    Move any tooltip that lands there to just below its button, and keep it inside the window. */
@@ -756,7 +782,7 @@ M.destroy = () => {
   closePanel();
   document.getElementById("mod-btn")?.remove();
   document.getElementById("mod-lights")?.remove();
-  document.querySelectorAll(".mod-resizer, #mod-size-overlay, #mod-wave, #mod-ring, #mod-pill-ghost, #mod-fr, #mod-home-hero, #mod-lib, #mod-orbit, #mod-setnav").forEach((e) => e.remove());
+  document.querySelectorAll("#mod-toast, .mod-resizer, #mod-size-overlay, #mod-wave, #mod-ring, #mod-pill-ghost, #mod-fr, #mod-home-hero, #mod-lib, #mod-orbit, #mod-setnav").forEach((e) => e.remove());
   { const npb = document.querySelector('[data-testid="now-playing-bar"]'); npb?.style.removeProperty('--mod-pill-w'); npb?.style.removeProperty('--mod-pill-x'); }
   document.documentElement.classList.remove("mod-feed", "mod-libview"); document.querySelectorAll("[data-mod-orbit-src]").forEach((e) => e.removeAttribute("data-mod-orbit-src"));
   root.style.removeProperty("--mod-cover-color");

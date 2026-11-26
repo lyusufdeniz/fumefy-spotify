@@ -3,7 +3,7 @@
 //         node inject.mjs --watch    -> watch theme/ and live-reload on every save
 //         node inject.mjs --host     -> stay running: window shape, window buttons and the taskbar player work
 //         (both flags can be combined)
-import { readFileSync, readdirSync, existsSync, watch } from "node:fs";
+import { readFileSync, readdirSync, existsSync, watch, unlinkSync, writeFileSync } from "node:fs";
 import { join, dirname, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
@@ -120,6 +120,11 @@ if (HOST) {
   const ps = (file, stdio) => spawn("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-STA", "-File", join(DIR, file)], { stdio, windowsHide: true });
   const helper = ps("window.ps1", ["pipe", "inherit", "inherit"]);
   // islands: up to 12 islands, each "x,y,w,h,r" integers
+  // "restart": restart Spotify through start.ps1, which installs the waiting update first
+  const restart = () => {
+    const p = spawn("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden", "-File", join(DIR, "start.ps1")], { detached: true, stdio: "ignore", windowsHide: true });
+    p.unref();
+  };
   const ALLOWED = /^(round \d{1,2}|alpha \d{2,3}|islands( -?\d{1,5},-?\d{1,5},\d{1,5},\d{1,5},\d{1,4}){0,12}|whole( \d{1,3} \d{1,3})?|size 1[234]|min|max|close|drag)$/;
 
   // Taskbar mini player: gets the current song, sends prev / play / next back
@@ -174,6 +179,7 @@ if (HOST) {
       } catch {}
       return;
     }
+    if (p === "restart") { restart(); return; }
     if (ALLOWED.test(p)) helper.stdin.write(p + "\n");
   };
   process.on("exit", () => { try { helper.stdin.write("quit\n"); } catch {} try { tray?.stdin.write("quit\n"); } catch {} });
@@ -196,6 +202,48 @@ async function inject() {
 }
 
 await inject();
+
+// ---------- update notices ----------
+const toast = (o) => send("Runtime.evaluate", { expression: `window.__MOD && __MOD.toast && __MOD.toast(${JSON.stringify(o)})` });
+const localVersion = () => (read(join(DIR, "VERSION")).trim() || "0.0.0");
+const newer = (a, b) => { const x = a.split(".").map(Number), y = b.split(".").map(Number); for (let i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0); } return false; };
+// 1) A new version is in place (installed or just updated): say so once.
+//    The version last greeted is kept in seen-version; updated.json (written by update.ps1) adds a note.
+const seenFile = join(DIR, "seen-version"), updatedFile = join(DIR, "updated.json");
+const nowVer = localVersion(), seenVer = read(seenFile).trim();
+if (HOST && nowVer !== seenVer) {
+  let note = "";
+  try { note = JSON.parse(read(updatedFile).replace(/^\uFEFF/, "")).note || ""; } catch {}
+  (async () => {
+    if (!note) {
+      // older updaters did not write updated.json: take the first line of this release's notes from GitHub
+      try {
+        const r = await fetch(`https://api.github.com/repos/lyusufdeniz/fumefy-spotify/releases/tags/v${nowVer}`, { headers: { "User-Agent": "fumefy-updater" }, signal: AbortSignal.timeout(6000) });
+        if (r.ok) note = (String((await r.json()).body || "").split("\n").map((l) => l.replace(/^\s*[-*]\s*/, "").trim()).find((l) => l && !/^(#|Install)/.test(l))) || "";
+      } catch {}
+    }
+    setTimeout(() => toast({ kind: "done", title: seenVer ? `Fumefy updated to ${nowVer}` : `Fumefy ${nowVer} is ready`, text: note || "Enjoy the new look." }), 2500);
+  })();
+  try { writeFileSync(seenFile, nowVer); } catch {}
+}
+try { unlinkSync(updatedFile); } catch {}
+// 2) while Spotify stays open, look for a newer release now and then and offer a restart
+if (HOST) {
+  let offered = "";
+  const check = async () => {
+    try {
+      const r = await fetch("https://api.github.com/repos/lyusufdeniz/fumefy-spotify/releases/latest", { headers: { "User-Agent": "fumefy-updater" }, signal: AbortSignal.timeout(8000) });
+      if (!r.ok) return;
+      const latest = String((await r.json()).tag_name || "").replace(/^v/, "");
+      if (latest && latest !== offered && newer(latest, localVersion())) {
+        offered = latest;
+        toast({ title: `Fumefy ${latest} is available`, text: "Restart Spotify to install it.", action: { label: "Restart", cmd: "restart", busy: "Restarting…" } });
+      }
+    } catch {}
+  };
+  setTimeout(check, 60 * 1000);
+  setInterval(check, 6 * 60 * 60 * 1000);
+}
 
 if (KEEP) {
   if (WATCH) {

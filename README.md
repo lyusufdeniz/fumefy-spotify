@@ -28,7 +28,8 @@ stylesheet and a small script while the app runs. Close Spotify, open it normall
   play / next, volume (click the speaker for a slider, or scroll on the player).
 - **Desktop widget**: a bigger player card on your desktop; drag it anywhere, it remembers its place.
 - Both widgets can be switched on and off from the Fumefy menu inside Spotify (palette icon, or `Ctrl+Alt+T`).
-- **Updates itself**: every start checks GitHub for a newer release and installs it.
+- **Updates itself**: every start checks GitHub for a newer release and installs it; a small pill in Spotify tells you
+  what changed. If a new version comes out while Spotify is open, the pill offers a one-click restart.
 
 | Playlist | Profile |
 |---|---|
