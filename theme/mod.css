@@ -1,0 +1,395 @@
+/* The mod's always-loaded base style: accent color + theme panel */
+
+/* --mod-a: dynamic cover color > selected color scheme > theme color > Spotify green */
+:root { --mod-a: var(--mod-dyn-accent, var(--mod-custom-accent, var(--mod-scheme-accent, var(--mod-accent, #1ed760)))); }
+/* if the user picked an accent color, apply it in the Original theme too */
+html[style*="--mod-custom-accent"] :is(.encore-dark-theme, .encore-dark-theme [class*="encore-"]) {
+  --text-bright-accent: var(--mod-a); --essential-bright-accent: var(--mod-a); --text-positive: var(--mod-a); --essential-positive: var(--mod-a);
+}
+html[style*="--mod-custom-accent"] .encore-bright-accent-set {
+  --background-base: var(--mod-a) !important;
+  --background-highlight: color-mix(in srgb, var(--mod-a) 82%, white) !important;
+  --background-press: color-mix(in srgb, var(--mod-a) 80%, black) !important;
+}
+
+/* Spotify green reaches some icons through different classes; in a theme, replace it with the accent color on every element */
+html:is(.mod-dyn, :not([data-mod-theme="default"])) * {
+  --text-bright-accent: var(--mod-a);
+  --essential-bright-accent: var(--mod-a);
+  --text-positive: var(--mod-a);
+  --essential-positive: var(--mod-a);
+}
+html:is(.mod-dyn, :not([data-mod-theme="default"])) .encore-bright-accent-set {
+  --background-base: var(--mod-a) !important;
+  --background-highlight: color-mix(in srgb, var(--mod-a) 82%, white) !important;
+  --background-press: color-mix(in srgb, var(--mod-a) 80%, black) !important;
+}
+
+/* ---------- Page header colors ----------
+   Spotify colors the home / profile / playlist / album / artist headers from the cover art.
+   While a theme is active, replace them with the theme's color. Themes can define:
+     --mod-hdr   header color (default: a light tint of the accent color)
+     --mod-bar   color of the top bar that appears on scroll (default: --mod-hdr) */
+:root {
+  --mod-hdr-c: var(--mod-hdr, color-mix(in srgb, var(--mod-a) 22%, transparent));
+  --mod-bar-c: var(--mod-bar, var(--mod-hdr-c));
+}
+html:not([data-mod-theme="default"]) {
+  /* We don't draw our own gradients: Spotify's are already smooth,
+     we just swap the colors they use for the theme's. */
+
+  /* A) Layers colored via inline background-color
+        (profile / your own playlist: header + button area, home top strip) */
+  /* header: slightly lighter at the top, full header color at the bottom */
+  & #main-view [data-testid="entity-header"] > div[style*="background-color"] {
+    background: linear-gradient(color-mix(in srgb, var(--mod-hdr-c), white 6%), var(--mod-hdr-c)) !important;
+  }
+  /* Spotify's dimming layer leaves a hard line: hide it */
+  & #main-view [data-testid="entity-header"] > div[style*="background-color"] ~ div:empty {
+    opacity: 0;
+  }
+  /* button area + home top strip: fades from the header color to transparent */
+  & #main-view [data-testid="entity-header"] ~ div[style*="background-color"],
+  & #main-view main > div > div[style^="background-color"] {
+    background: linear-gradient(var(--mod-hdr-c), transparent) !important;
+  }
+
+  /* B) Layers colored via variables (album, other playlists, artist) */
+  & #main-view [style*="--background-base"] {
+    --background-base: var(--mod-hdr-c) !important;
+    --background-base-min-contrast: color-mix(in srgb, var(--mod-hdr-c), white 6%) !important;
+    /* start the button area at the full header color so the seam is invisible */
+    --background-base-70: var(--mod-hdr-c) !important;
+    --background-base-20: var(--mod-hdr-c) !important;
+    --background-highlight: color-mix(in srgb, var(--mod-hdr-c), white 8%) !important;
+    --background-press: color-mix(in srgb, var(--mod-hdr-c), black 15%) !important;
+  }
+  /* the button area gradient ends at Spotify's fixed #121212; make it end at the theme background */
+  & #main-view [style*="--background-base"]:not([data-testid="entity-header"] > *) {
+    /* transparent version of the same color: fading to transparent black shifted the hue and turned gray reddish */
+    --color-to: color-mix(in srgb, var(--mod-hdr-c), transparent 100%) !important;
+  }
+  /* Spotify draws gradients in oklch; with neutral theme colors the hue shift looks like a sharp line.
+     Draw them all in sRGB: the hue stays fixed and only fades */
+  & #main-view [style*="--background-base"],
+  & #main-view [data-testid="entity-header"] > [style*="--background-base"] {
+    --direction-and-possibly-color-interpolation: to bottom !important;
+  }
+  /* the dark shadow at the header corners leaves a line at the bottom edge: hide it */
+  & #main-view [data-testid="entity-header"] > [style*="--background-base"]::after {
+    opacity: 0 !important;
+  }
+  & #main-view [data-testid="overscroll-background"] { background-color: var(--mod-hdr-c) !important; }
+  /* top bars: the header bar that appears on scroll and the filter (All / Music...) strip on home.
+     These only have a single --background-base; header layers also carry other color variables. */
+  & [data-testid="topbar"] > div[style*="--background-base"],
+  & #main-view [style*="--background-base"][style*="opacity"],
+  & #main-view [style*="--background-base"]:not([style*="min-contrast"]):not([style*="--background-highlight"]):not([data-testid="entity-header"] *) {
+    --background-base: var(--mod-bar-c) !important;
+    background-color: var(--mod-bar-c) !important;
+  }
+  /* Image headers of Spotify-made playlists and artists: keep only the image's light/shadow,
+     take the color from the theme's header color (luminosity blend) */
+  & #main-view [data-testid="background-image"] {
+    background-color: var(--mod-hdr-solid, #222) !important;
+    background-blend-mode: luminosity !important;
+    filter: brightness(0.75) contrast(1.05);
+    /* fade the bottom smoothly: into the theme color behind, then seamlessly into the button area */
+    -webkit-mask-image: linear-gradient(#000 45%, transparent 100%);
+    mask-image: linear-gradient(#000 45%, transparent 100%);
+  }
+  /* the dimming over the image fades to the theme's header color, not black: the button area below starts with that color */
+  & #main-view [data-testid="background-image"] ~ div {
+    background-image: linear-gradient(transparent 0%, var(--mod-hdr-c) 100%) !important;
+  }
+}
+/* opaque header color for the luminosity blend (blending with a translucent color looks washed out) */
+:root { --mod-hdr-solid: color-mix(in srgb, var(--mod-hdr-c), #1a1a1a); }
+
+/* Profile pages (pages with a profile photo in the header): playlist, artist and friend images are circles.
+   Independent of the theme and the "Cover corners" setting; the selector is intentionally stronger than theirs. */
+html #main-view section:has([data-testid="entity-header"] [data-testid="user-image"]) [data-encore-id="card"] :is(img, div:has(> img), div:has(> div > img)) {
+  border-radius: 50% !important;
+}
+
+/* ---------- Panel ---------- */
+#mod-panel {
+  position: fixed;
+  z-index: 10000;
+  width: 460px;
+  max-height: calc(100vh - 140px);
+  overflow: auto;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(24, 24, 28, 0.82);
+  backdrop-filter: blur(28px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-family: inherit;
+  animation: mod-pop 0.16s ease-out;
+}
+@keyframes mod-pop { from { opacity: 0; transform: translateY(-6px) scale(0.98); } }
+
+#mod-panel .mod-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+#mod-panel .mod-title { font-size: 18px; font-weight: 700; }
+#mod-panel .mod-sub { font-size: 12px; color: rgba(255, 255, 255, 0.55); margin-top: 2px; }
+#mod-panel .mod-x {
+  all: unset; cursor: pointer; width: 28px; height: 28px; border-radius: 50%;
+  display: grid; place-items: center; color: rgba(255, 255, 255, 0.7);
+}
+#mod-panel .mod-x:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+#mod-panel .mod-tabs {
+  display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; margin-bottom: 14px;
+  background: rgba(255, 255, 255, 0.06); border-radius: 10px;
+}
+#mod-panel .mod-tab {
+  all: unset; flex: 1 0 auto; text-align: center; cursor: pointer;
+  padding: 7px 4px; border-radius: 7px; font-size: 11.5px; font-weight: 700;
+  color: rgba(255, 255, 255, 0.6); transition: background 0.15s, color 0.15s;
+}
+#mod-panel .mod-tab:hover { color: #fff; }
+#mod-panel .mod-tab.on { background: rgba(255, 255, 255, 0.14); color: #fff; }
+#mod-panel .mod-row.col { flex-direction: column; align-items: stretch; cursor: default; }
+#mod-panel .mod-row + .mod-row { margin-top: 10px; }
+#mod-panel .mod-note {
+  font-size: 12px; line-height: 1.4; padding: 10px 12px; margin-bottom: 4px; border-radius: 8px;
+  background: rgba(255, 190, 60, 0.12); color: #ffd58a;
+}
+#mod-panel .mod-seg { display: flex; gap: 4px; margin-top: 8px; }
+#mod-panel .mod-seg button {
+  all: unset; flex: 1; text-align: center; cursor: pointer; padding: 6px 0; border-radius: 7px;
+  font-size: 12px; font-weight: 700; background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.7);
+}
+#mod-panel .mod-seg button.on { background: var(--mod-a); color: #000; }
+#mod-panel .mod-seg.wrap { flex-wrap: wrap; }
+#mod-panel .mod-seg.wrap button { flex: 1 0 auto; padding-inline: 8px; }
+#mod-panel .mod-sec {
+  margin: 18px 0 2px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+#mod-panel .mod-sec + .mod-row { margin-top: 6px; padding-top: 8px; }
+#mod-panel .mod-note.soft { background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.7); }
+#mod-panel .mod-crow { cursor: default; }
+#mod-panel .mod-cpick { display: flex; align-items: center; gap: 8px; flex: none; }
+#mod-panel .mod-cpick em { font-style: normal; font-size: 11.5px; color: rgba(255, 255, 255, 0.45); }
+#mod-panel input[type="color"] {
+  width: 34px; height: 26px; padding: 0; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 7px;
+  background: none; cursor: pointer;
+}
+#mod-panel input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
+#mod-panel input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 5px; }
+#mod-panel input[type="color"].unset { opacity: 0.45; }
+#mod-panel .mod-mini {
+  all: unset; cursor: pointer; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8);
+}
+#mod-panel .mod-reset-all {
+  all: unset; box-sizing: border-box; display: block; width: 100%; text-align: center; cursor: pointer;
+  margin-top: 16px; padding: 9px; border-radius: 9px; font-size: 12.5px; font-weight: 700;
+  background: rgba(255, 90, 90, 0.14); color: #ffb0b0;
+}
+#mod-panel .mod-reset-all[disabled] { opacity: 0.4; cursor: default; }
+#mod-panel .mod-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+#mod-panel .mod-chip {
+  all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px 5px 6px; border-radius: 999px; font-size: 12px; font-weight: 700;
+  background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.75);
+  border: 1px solid transparent;
+}
+#mod-panel .mod-chip i { width: 14px; height: 14px; border-radius: 50%; }
+#mod-panel .mod-chip.on { border-color: var(--mod-a); color: #fff; background: rgba(255, 255, 255, 0.1); }
+
+/* ---------- Window: move grip and top-edge resize areas ---------- */
+.mod-resizer {
+  display: none; position: fixed; z-index: 2147483000;
+  -webkit-app-region: no-drag; app-region: no-drag;   /* take priority over Spotify's drag region */
+}
+html.mod-whole .mod-resizer { display: block; }
+#mod-resize-top { top: var(--mod-cut, 66px); left: 14px; right: 14px; height: 5px; cursor: ns-resize; }
+#mod-resize-tl  { top: var(--mod-cut, 66px); left: 0; width: 14px; height: 14px; cursor: nwse-resize; }
+#mod-resize-tr  { top: var(--mod-cut, 66px); right: 0; width: 14px; height: 14px; cursor: nesw-resize; }
+#mod-lights .mod-grip {
+  display: none; place-items: center; width: 18px; height: 26px; margin-left: 2px; border-radius: 6px;
+  color: rgba(255, 255, 255, 0.4); cursor: grab; -webkit-app-region: no-drag; app-region: no-drag;
+}
+html.mod-whole #mod-lights .mod-grip { display: grid; }
+#mod-lights .mod-grip:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+#mod-lights .mod-grip:active { cursor: grabbing; }
+
+/* ---------- While resizing: whole window frosted glass, size in the center ---------- */
+#mod-size-overlay {
+  position: fixed; inset: 0; z-index: 2147483600; pointer-events: none;
+  display: grid; place-items: center;
+  background: rgba(12, 12, 16, 0.55);
+  backdrop-filter: blur(30px) saturate(1.2);
+  opacity: 0; transition: opacity 0.18s ease;
+}
+#mod-size-overlay.on { opacity: 1; transition: none; }
+#mod-size-overlay .mod-size-box { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #fff; }
+#mod-size-overlay b { font-size: 34px; font-weight: 700; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+#mod-size-overlay span { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.55); }
+
+/* ---------- Window buttons (top right) ---------- */
+#mod-lights {
+  display: flex; align-items: center; gap: 8px; margin-inline: 14px 0;
+  -webkit-app-region: no-drag; app-region: no-drag;
+}
+#mod-lights .mod-light {
+  all: unset; width: 12px; height: 12px; border-radius: 50%; cursor: default;
+  display: grid; place-items: center; color: transparent;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.25);
+  -webkit-app-region: no-drag; app-region: no-drag;
+}
+#mod-lights .close { background: #ff5f57; }
+#mod-lights .min { background: #febc2e; }
+#mod-lights .max { background: #28c840; }
+#mod-lights:hover .mod-light { color: rgba(0, 0, 0, 0.6); }
+#mod-lights .mod-light:active { filter: brightness(0.8); }
+
+#mod-panel .mod-card.slim { min-height: 64px; justify-content: center; }
+#mod-panel .mod-foot { margin-top: 12px; font-size: 11px; color: rgba(255, 255, 255, 0.4); text-align: center; }
+#mod-panel .mod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#mod-panel .mod-card {
+  all: unset; box-sizing: border-box; cursor: pointer;
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 8px; border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+#mod-panel .mod-card:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-1px); }
+#mod-panel .mod-card.on { border-color: var(--mod-a); background: rgba(255, 255, 255, 0.1); }
+#mod-panel .mod-card:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+#mod-panel .mod-swatch { display: flex; height: 54px; border-radius: 7px; overflow: hidden; }
+#mod-panel .mod-swatch i { flex: 1; }
+#mod-panel .mod-swatch i:first-child { flex: 2.2; }
+#mod-panel .mod-name { font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; }
+#mod-panel .mod-check { color: var(--mod-a); }
+#mod-panel .mod-desc { font-size: 11.5px; line-height: 1.35; color: rgba(255, 255, 255, 0.6); }
+
+#mod-panel .mod-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, 0.08); cursor: pointer;
+}
+#mod-panel .mod-row b { display: block; font-size: 13px; }
+#mod-panel .mod-row small { display: block; font-size: 11.5px; color: rgba(255, 255, 255, 0.55); margin-top: 2px; }
+#mod-panel .mod-switch {
+  appearance: none; flex: none; width: 36px; height: 20px; border-radius: 10px; margin: 0;
+  background: rgba(255, 255, 255, 0.2); position: relative; cursor: pointer; transition: background 0.15s;
+}
+#mod-panel .mod-switch::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px;
+  border-radius: 50%; background: #fff; transition: transform 0.15s;
+}
+#mod-panel .mod-switch:checked { background: var(--mod-a); }
+#mod-panel .mod-switch:checked::after { transform: translateX(16px); }
+
+/* Fallback button if the top bar isn't found */
+#mod-btn.mod-floating {
+  position: fixed; top: 12px; right: 180px; z-index: 9999;
+  width: 32px; height: 32px; border-radius: 50%; border: 0; cursor: pointer;
+  background: rgba(255, 255, 255, 0.1); color: #fff; display: grid; place-items: center;
+}
+
+
+/* "Playing on …" strip: a small pill next to the player's "Connect to a device" button (mod.js reserves the space) */
+[data-testid="now-playing-bar"] { position: relative; }
+[data-testid="now-playing-bar"] > div:nth-child(2):last-child {
+  position: absolute !important; top: 50%; transform: translateY(-50%); left: var(--mod-pill-x, 16px); right: auto;
+  width: auto !important; height: 28px !important; min-height: 0 !important; margin: 0 !important; padding: 0 12px !important;
+  border-radius: 999px !important; display: flex !important; align-items: center; gap: 6px; z-index: 2;
+  
+}
+[data-testid="now-playing-bar"] > div:nth-child(2):last-child > * { margin: 0 !important; }
+/* when the pill appears: the space opens smoothly and the pill reveals left to right; the reverse when it hides */
+@media (prefers-reduced-motion: no-preference) {
+  [data-testid="now-playing-bar"] > div:first-child > div:last-child > div > span { transition: margin-right 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  [data-testid="now-playing-bar"] > div:nth-child(2):not(#mod-pill-ghost) { animation: mod-pill-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s both; }
+  #mod-pill-ghost { animation: mod-pill-out 0.3s cubic-bezier(0.4, 0, 1, 1) both; pointer-events: none; }
+}
+#mod-pill-ghost { pointer-events: none; }
+@keyframes mod-pill-in { from { clip-path: inset(0 100% 0 0 round 999px); opacity: 0; } to { clip-path: inset(0 0 0 0 round 999px); opacity: 1; } }
+@keyframes mod-pill-out { from { clip-path: inset(0 0 0 0 round 999px); opacity: 1; } to { clip-path: inset(0 100% 0 0 round 999px); opacity: 0; } }
+
+/* ---------- Friends panel: shared parts (#mod-fr, rendered by mod.js) ---------- */
+html.mod-feed #Desktop_PanelContainer_Id ul:has(> li figure ~ button) { display: none !important; }
+#mod-fr { display: flex; flex-direction: column; gap: 10px; padding: 4px 12px 16px; }
+#mod-fr a { cursor: pointer; color: inherit; text-decoration: none; }
+#mod-fr a:hover { text-decoration: underline; }
+#mod-fr .mf-item { position: relative; display: flex; align-items: center; gap: 12px; min-width: 0; }
+#mod-fr .mf-cover { position: relative; flex: none; cursor: pointer; overflow: hidden; }
+#mod-fr .mf-art { display: block; width: 100%; height: 100%; object-fit: cover; }
+#mod-fr .mf-noart { background: linear-gradient(135deg, hsl(var(--h) 45% 42%), hsl(calc(var(--h) + 40) 40% 16%)); }
+#mod-fr .mf-vinyl { display: none; }
+#mod-fr .mf-playbtn { position: absolute; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: #fff; color: #111; opacity: 0; transform: translateY(4px); transition: opacity 0.15s, transform 0.15s; right: 8px; bottom: 8px; }
+#mod-fr .mf-cover:hover .mf-playbtn { opacity: 1; transform: none; }
+#mod-fr .mf-av { flex: none; width: 24px; height: 24px; border-radius: 50%; object-fit: cover; cursor: pointer; }
+#mod-fr .mf-text { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
+#mod-fr .mf-song { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-base, #fff); }
+#mod-fr .mf-artist, #mod-fr .mf-meta { font-size: 12px; color: var(--text-subdued, #a7a9b0); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#mod-fr .mf-meta { display: flex; gap: 6px; align-items: center; }
+#mod-fr .mf-who { color: var(--text-base, #fff); font-weight: 600; }
+#mod-fr .mf-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-subdued, #a7a9b0); margin: 8px 4px 0; }
+#mod-fr .mf-label[data-g="0"] { color: var(--text-base, #fff); }
+#mod-fr .mf-empty { font-size: 13px; color: var(--text-subdued, #a7a9b0); padding: 12px 4px; }
+#mod-fr .mf-eq { display: inline-flex; gap: 2px; align-items: flex-end; height: 11px; }
+#mod-fr .mf-eq i { display: block; width: 3px; height: 4px; border-radius: 2px; background: var(--text-base, #fff); animation: mf-eq 1s ease-in-out infinite; }
+#mod-fr .mf-eq i:nth-child(2) { animation-delay: -0.4s; }
+#mod-fr .mf-eq i:nth-child(3) { animation-delay: -0.7s; }
+@keyframes mf-eq { 0%, 100% { height: 4px; } 50% { height: 11px; } }
+@keyframes mf-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { #mod-fr .mf-eq i, #mod-fr .mf-cover { animation: none !important; } }
+
+/* ---------- Library A–D: shared parts (#mod-lib, rendered by mod.js) ---------- */
+/* Spotify's list stays in place (so the virtual list keeps generating rows) but is invisible and not clickable */
+html.mod-libview #Desktop_LeftSidebar_Id [role="grid"] { position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important; opacity: 0 !important; pointer-events: none !important; clip-path: inset(50%); }
+#mod-lib { padding: 4px 8px 16px; display: flex; flex-direction: column; gap: 2px; }
+#mod-lib .ml-item { position: relative; display: flex; align-items: center; gap: 12px; padding: 6px; border-radius: 10px; cursor: pointer; min-width: 0; outline: none; }
+#mod-lib .ml-item:hover { background: rgba(255, 255, 255, 0.07); }
+#mod-lib .ml-item:focus-visible { box-shadow: inset 0 0 0 2px #fff; }
+#mod-lib .ml-cover { position: relative; flex: none; width: 48px; height: 48px; }
+#mod-lib .ml-img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+#mod-lib .ml-img.round { border-radius: 50%; }
+#mod-lib .ml-noimg { background: #2a2b30; }
+#mod-lib .ml-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; background: rgba(0, 0, 0, 0.5); border-radius: inherit; opacity: 0; transition: opacity 0.15s; }
+#mod-lib .ml-item:hover .ml-play { opacity: 1; }
+#mod-lib .ml-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+#mod-lib .ml-title { font-size: 14px; font-weight: 600; color: var(--text-base, #fff); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#mod-lib .ml-sub { font-size: 12px; color: var(--text-subdued, #a7a9b0); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#mod-lib .ml-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-subdued, #a7a9b0); margin: 12px 6px 4px; }
+
+/* The track list's sticky column header (#, Title, Album): in themes it stayed transparent and overlapped the rows.
+   Spotify only paints its background with this variable once stuck; we set the variable to the top bar's solid color */
+html[data-mod-theme]:not([data-mod-theme="default"]) #main-view [role="presentation"]:has(> [role="presentation"] > [role="row"] > [role="columnheader"]) { --background-highlight: var(--mod-bar-c, #121212); --background-elevated-base: var(--mod-bar-c, #121212); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); }
+
+/* ---------- Settings: sticky section menu on the left (#mod-setnav, rendered by mod.js) ---------- */
+html #main-view [data-testid="settings-page"]:has(> #mod-setnav) {
+  display: grid !important; grid-template-columns: 210px minmax(0, 1fr); column-gap: 40px; align-content: start;
+  max-width: 1180px !important; margin-inline: auto !important; box-sizing: border-box; padding-inline: 32px !important; padding-bottom: 120px !important; /* keep the last setting from hiding under the floating player */
+}
+html #main-view [data-testid="settings-page"]:has(> #mod-setnav) > :not(#mod-setnav) { grid-column: 2; min-width: 0; scroll-margin-top: 84px; }
+#mod-setnav { grid-column: 1; grid-row: 1; align-self: start; position: sticky; top: 84px; display: flex; flex-direction: column; gap: 2px; padding-top: 8px; max-height: calc(100vh - 220px); overflow-y: auto; scrollbar-width: none; }
+#mod-setnav button { all: unset; cursor: pointer; padding: 8px 12px; border-radius: 10px; font-size: 13.5px; font-weight: 500; color: var(--text-subdued, #a7a9b0); line-height: 1.3; transition: background 0.15s, color 0.15s; }
+#mod-setnav button:hover { color: var(--text-base, #fff); background: rgba(255, 255, 255, 0.06); }
+#mod-setnav button.on { color: var(--text-base, #fff); background: rgba(255, 255, 255, 0.12); font-weight: 700; }
+#mod-setnav button:focus-visible { box-shadow: inset 0 0 0 2px #fff; }
+
+/* ---------- Panel: widget switches ---------- */
+#mod-panel .mod-section { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.55); margin: 4px 2px 8px; }
+#mod-panel .mod-toggles { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+#mod-panel .mod-toggle { all: unset; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); cursor: pointer; }
+#mod-panel .mod-toggle:hover { background: rgba(255, 255, 255, 0.09); }
+#mod-panel .mod-toggle:focus-visible { box-shadow: inset 0 0 0 2px #fff; }
+#mod-panel .mod-tt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+#mod-panel .mod-switch { flex: none; position: relative; width: 34px; height: 20px; border-radius: 999px; background: rgba(255, 255, 255, 0.18); transition: background 0.15s; }
+#mod-panel .mod-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left 0.15s, background 0.15s; }
+#mod-panel .mod-toggle.on .mod-switch { background: #fff; }
+#mod-panel .mod-toggle.on .mod-switch::after { left: 17px; background: #111; }
+
+/* "On" state of toggle buttons (song in Liked Songs, shuffle, repeat) in a clear color, so it is visible at a glance.
+   Filter chips use aria-checked too and keep their own look. */
+:root { --mod-on: #60cdff; }
+html button[aria-checked="true"]:not([data-encore-id="chip"]):not([role="checkbox"]) { color: var(--mod-on) !important; --text-bright-accent: var(--mod-on); --essential-bright-accent: var(--mod-on); }
+html button[aria-checked="true"]:not([data-encore-id="chip"]):not([role="checkbox"]) svg { fill: var(--mod-on) !important; color: var(--mod-on) !important; }

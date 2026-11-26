@@ -1,0 +1,45 @@
+/* name: Acrylic | desc: Windows 11 style: Segoe UI, 8px corners, Fluent cards, left-accent menu, underlined search box, media-card player | swatch: #121315, #1c1d20, #60cdff | order: 7 */
+:root { --mod-accent: #60cdff; --mod-hdr: color-mix(in srgb, var(--mod-a) 8%, #1c1d20); --mod-bar: rgba(27, 28, 31, 0.86); }
+/* play + title bar that appears on scroll: frosted glass in the panel tone (so it doesn't look black) */
+#main-view [data-testid="topbar"] > div[style*="--background-base"] {
+  backdrop-filter: blur(24px) saturate(1.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.Root { --panel-gap: 6px !important; isolation: isolate; }
+html, body { background: #111214 !important; }
+.Root::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(1400px 900px at 15% 0%, color-mix(in srgb, var(--mod-a) 10%, transparent), transparent 60%), linear-gradient(160deg, #18191c, #0e0f10);
+}
+.Root, .Root > div, #global-nav-bar, .Root > div > div:has(> [data-testid="now-playing-bar"]) { background: transparent !important; }
+.encore-dark-theme, .encore-dark-theme .encore-base-set {
+  --background-base: rgba(29, 30, 33, 0.72); --background-highlight: rgba(255, 255, 255, 0.06); --background-press: rgba(255, 255, 255, 0.03);
+  --background-elevated-base: #1e1f22; --background-elevated-highlight: #2a2b2f;
+  --background-tinted-base: rgba(255, 255, 255, 0.06); --background-tinted-highlight: rgba(255, 255, 255, 0.09);
+  --decorative-subdued: rgba(255, 255, 255, 0.08); --text-subdued: #c5c7cc;
+}
+#Desktop_LeftSidebar_Id, #main-view, .Root > div > div:has(> .LayoutResizer__inline-start) {
+  background: rgba(25, 26, 29, 0.66) !important; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px !important; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+#main-view h1 { font-weight: 600 !important; }
+#main-view [data-encore-id="listRowTitle"] { font-weight: 600 !important; font-size: 20px !important; }
+/* Fluent card */
+#main-view [data-encore-id="card"] { background: rgba(255, 255, 255, 0.04) !important; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px !important; }
+#main-view [data-encore-id="card"]:hover { background: rgba(255, 255, 255, 0.08) !important; }
+/* 4 px for covers only: artist and user images stay circular as in Spotify */
+#main-view [data-encore-id="card"]:not([aria-labelledby*=":artist:"]):not([aria-labelledby*=":user:"]) img { border-radius: 4px !important; }
+#main-view div:has(> a [data-testid="shortcut-image"]) { background: rgba(255, 255, 255, 0.05) !important; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px !important; overflow: hidden; }
+/* Windows 11 navigation: left accent line on the selected item */
+#Desktop_LeftSidebar_Id [data-encore-id="listRow"] { border-radius: 4px !important; position: relative; }
+#Desktop_LeftSidebar_Id [data-encore-id="listRow"]:hover { background: rgba(255, 255, 255, 0.05); }
+#Desktop_LeftSidebar_Id [aria-selected="true"] [data-encore-id="listRow"], #Desktop_LeftSidebar_Id [data-encore-id="listRow"][aria-selected="true"] { background: rgba(255, 255, 255, 0.07); box-shadow: inset 3px 0 0 var(--mod-a); }
+/* Fluent controls */
+[data-encore-id="chip"] > span { border-radius: 4px !important; background: rgba(255, 255, 255, 0.06) !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; }
+[data-encore-id="chip"][aria-checked="true"] > span { background: var(--mod-a) !important; color: #000 !important; }
+form[role="search"] input { border-radius: 4px !important; background: rgba(255, 255, 255, 0.06) !important; box-shadow: inset 0 -2px 0 var(--mod-a) !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; }
+[data-testid="home-button"] { border-radius: 4px !important; background: rgba(255, 255, 255, 0.06) !important; }
+[data-encore-id="buttonPrimary"] > span, [data-testid="control-button-playpause"] > span { background: var(--mod-a) !important; color: #000 !important; }
+/* media-card player */
+.Root > div > div:has(> [data-testid="now-playing-bar"]) { padding: 0 6px 6px; }
+[data-testid="now-playing-bar"] { background: rgba(29, 30, 33, 0.88) !important; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; }
+[data-testid="now-playing-bar"] [data-testid="cover-art-container"] :is(button, img, div) { border-radius: 4px !important; }

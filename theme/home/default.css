@@ -1,0 +1,23 @@
+/* name: Greeting and big cards | desc: Greeting at the top with a "pick up where you left off" card for the current track; fewer but bigger cards on shelves | order: 0 */
+/* the card is added by mod.js (#mod-home-hero) */
+/* Spotify gives the shortcuts order: -1; the greeting goes above them */
+#mod-home-hero { order: -2; flex: 0 0 100%; width: 100%; box-sizing: border-box; padding: 4px 0 8px; display: flex; flex-direction: column; gap: 16px; }
+#mod-home-hero .mh-hello { margin: 0; font-size: 32px; line-height: 1.15; font-weight: 800; letter-spacing: -0.02em; color: var(--text-base, #fff); }
+#mod-home-hero .mh-card { border-radius: 18px; padding: 16px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.07); max-width: 720px; width: 100%; box-sizing: border-box; }
+#mod-home-hero .mh-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-subdued, #a7a9b0); margin-bottom: 12px; }
+#mod-home-hero .mh-row { display: flex; align-items: center; gap: 16px; }
+#mod-home-hero .mh-cover { width: 96px; height: 96px; border-radius: 12px; object-fit: cover; flex: none; cursor: pointer; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+#mod-home-hero .mh-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+#mod-home-hero .mh-title { font-size: 22px; font-weight: 800; color: var(--text-base, #fff); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none; }
+#mod-home-hero .mh-title:hover { text-decoration: underline; }
+#mod-home-hero .mh-artist { font-size: 14px; color: var(--text-subdued, #a7a9b0); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#mod-home-hero .mh-play { all: unset; flex: none; width: 52px; height: 52px; border-radius: 50%; background: #fff; color: #111; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; }
+#mod-home-hero .mh-play:hover { transform: scale(1.05); }
+#mod-home-hero .mh-play:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+html #main-view section[data-testid="home-page"] [data-testid="component-shelf"] [role="grid"] {
+  grid-template-columns: none !important; grid-auto-flow: column !important; grid-auto-columns: 264px !important; column-gap: 8px !important;
+}
+html #main-view section[data-testid="home-page"] [data-testid="component-shelf"] [role="grid"] > [role="row"] { width: 264px !important; max-width: none !important; }
+html #main-view section[data-testid="home-page"] [data-testid="component-shelf"] [data-encore-id="card"] img { border-radius: 14px !important; }
+html #main-view section[data-testid="home-page"] [data-testid="component-shelf"] [data-encore-id="card"] :is([data-encore-id="cardTitle"], p) { font-size: 15px !important; }
+html #main-view section[data-testid="home-page"] [data-testid="component-shelf"] h2 { font-size: 28px !important; }

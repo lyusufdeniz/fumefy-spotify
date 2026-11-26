@@ -1,0 +1,49 @@
+/* name: Capsule | desc: Track, controls and other buttons in a single centered capsule; progress as a ring around the play button | order: 1 */
+/* the ring is added by mod.js (#mod-ring) */
+[data-testid="now-playing-bar"] { background: transparent !important; }
+/* main row only (leave the "Playing on …" strip below alone) */
+[data-testid="now-playing-bar"] > div:first-child { display: flex !important; justify-content: center !important; align-items: center !important; position: relative; gap: 0 !important; }
+/* capsule: left (track) + center (controls) */
+[data-testid="now-playing-bar"] > div:first-child > div:first-child,
+[data-testid="now-playing-bar"] > div:first-child > div:nth-child(2) {
+  flex: 0 0 auto !important; max-width: none !important; min-width: 0 !important; height: 64px; box-sizing: border-box;
+  display: flex !important; align-items: center !important;
+  background: var(--background-elevated-base, #24262b); border: 1px solid rgba(255, 255, 255, 0.08);
+}
+[data-testid="now-playing-bar"] > div:first-child > div:first-child { width: 324px !important; border-radius: 999px 0 0 999px; border-right: 0; padding: 0 8px 0 8px; }
+[data-testid="now-playing-bar"] > div:first-child > div:nth-child(2) { width: 168px !important; border-radius: 0; border-left: 0; border-right: 0; padding: 0 6px 0 0; justify-content: flex-start; }
+[data-testid="now-playing-bar"] > div:first-child > div:first-child > div,
+[data-testid="now-playing-widget-v2"] { width: auto !important; min-width: 0 !important; max-width: 100%; }
+/* small fixed gap between the track title and the like button */
+[data-testid="now-playing-widget-v2"] { gap: 12px; }
+[data-testid="now-playing-widget-v2"] > * { flex: none !important; width: auto !important; margin: 0 !important; }
+/* fixed-width title; long titles scroll (Spotify's own marquee) */
+[data-testid="now-playing-widget-v2"] > div:nth-child(2) { flex: none !important; width: 190px !important; min-width: 0; overflow: hidden; }
+[data-testid="player-controls"], [data-testid="general-controls"] { width: auto !important; max-width: none !important; min-width: 0 !important; }
+[data-testid="now-playing-bar"] [data-testid="cover-art-container"],
+[data-testid="now-playing-bar"] [data-testid="cover-art-container"] :is(button, img, div) { width: 48px !important; height: 48px !important; border-radius: 50% !important; }
+/* ring instead of a bar: time row, shuffle and repeat hidden */
+[data-testid="player-controls"] > div:last-child { display: none !important; }
+[data-testid="general-controls"] > div:first-child > button:first-child, [data-testid="control-button-repeat"] { display: none !important; }
+[data-testid="control-button-playpause"] { position: relative; overflow: visible !important; }
+[data-testid="control-button-playpause"] > span { background: #fff !important; color: #111 !important; }
+#mod-ring { position: absolute; inset: -6px; width: calc(100% + 12px); height: calc(100% + 12px); pointer-events: none; }
+#mod-ring circle { fill: none; stroke-width: 3; }
+#mod-ring .bg { stroke: rgba(255, 255, 255, 0.15); }
+#mod-ring .fg { stroke: #fff; stroke-linecap: round; transition: stroke-dashoffset 0.4s linear; }
+/* the right-hand buttons are part of the capsule too: third section */
+[data-testid="now-playing-bar"] > div:first-child > div:last-child {
+  flex: 0 0 auto !important; width: auto !important; max-width: none !important; min-width: 0 !important; height: 64px; box-sizing: border-box;
+  display: flex !important; align-items: center !important; justify-content: flex-start !important;
+  background: var(--background-elevated-base, #24262b); border: 1px solid rgba(255, 255, 255, 0.08); border-left: 0;
+  border-radius: 0 999px 999px 0; padding: 0 18px 0 4px;
+}
+[data-testid="now-playing-bar"] > div:first-child > div:last-child > div { width: auto !important; flex: none !important; gap: 2px; }
+[data-testid="now-playing-bar"] > div:first-child > div:nth-child(2)::before,
+[data-testid="now-playing-bar"] > div:first-child > div:last-child::before { content: ""; width: 1px; height: 28px; background: rgba(255, 255, 255, 0.1); margin-right: 10px; }
+[data-testid="now-playing-bar"] [data-testid="volume-bar"] { flex: 0 0 120px !important; width: 120px !important; }
+[data-testid="now-playing-bar"] [data-testid="player-controls"] { width: 100% !important; flex: 1 1 auto !important; }
+/* make room for the device pill after the "Connect to a device" button */
+[data-testid="now-playing-bar"] > div:first-child > div:last-child > div > span { margin-right: var(--mod-pill-w, 0px); }
+/* soft shadow under the floating capsule */
+[data-testid="now-playing-bar"] > div:first-child { filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.55)); }

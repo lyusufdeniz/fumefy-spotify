@@ -1,0 +1,27 @@
+/* name: Timeline | desc: Timeline grouped as "Now / Last hour / Earlier"; large profile picture, track cover in the corner | order: 1 */
+#mod-fr { position: relative; padding-left: 30px; gap: 14px; }
+/* timeline: a thin line, bright at the top and fading downward */
+#mod-fr::before {
+  content: ""; position: absolute; left: 15px; top: 10px; bottom: 16px; width: 2px; border-radius: 2px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.14) 40%, rgba(255, 255, 255, 0));
+}
+/* group headings: a small pill on the line */
+#mod-fr .mf-label { position: relative; margin: 8px 0 -2px -30px; padding: 3px 10px 3px 26px; align-self: flex-start; border-radius: 999px; background: var(--background-base, #121212); font-size: 10px; }
+#mod-fr .mf-label::before { content: ""; position: absolute; left: 11px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: #55575d; box-shadow: 0 0 0 3px var(--background-base, #121212); }
+#mod-fr .mf-label[data-g="1"]::before { background: var(--text-subdued, #a7a9b0); }
+#mod-fr .mf-label[data-g="0"]::before { background: #fff; box-shadow: 0 0 0 3px var(--background-base, #121212), 0 0 12px 2px rgba(255, 255, 255, 0.45); }
+/* each entry connects to the line with a short branch */
+#mod-fr .mf-item::before { content: ""; position: absolute; left: -15px; top: 50%; width: 9px; height: 2px; background: rgba(255, 255, 255, 0.14); }
+#mod-fr .mf-item::after { content: ""; position: absolute; left: -18px; top: 50%; width: 6px; height: 6px; margin-top: -2px; border-radius: 50%; background: #3a3c42; }
+#mod-fr .mf-item.on::after { background: #fff; animation: mf-pulse 1.6s ease-out infinite; }
+@keyframes mf-pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.5); } 100% { box-shadow: 0 0 0 7px rgba(255, 255, 255, 0); } }
+@media (prefers-reduced-motion: reduce) { #mod-fr .mf-item.on::after { animation: none; } }
+/* large profile picture in front, track cover as a small badge in the corner */
+#mod-fr .mf-av { order: -1; width: 48px; height: 48px; }
+#mod-fr .mf-item.on .mf-av { width: 56px; height: 56px; box-shadow: 0 0 0 2px #fff; }
+#mod-fr .mf-cover { position: absolute; left: 30px; top: 50%; margin-top: 6px; width: 24px; height: 24px; border-radius: 6px; box-shadow: 0 0 0 2px var(--background-base, #121212); z-index: 1; }
+#mod-fr .mf-item.on .mf-cover { left: 36px; margin-top: 10px; width: 26px; height: 26px; }
+#mod-fr .mf-playbtn { width: 100%; height: 100%; right: 0; bottom: 0; border-radius: 0; background: rgba(0, 0, 0, 0.55); color: #fff; transform: none; }
+#mod-fr .mf-playbtn svg { width: 10px; height: 10px; }
+#mod-fr .mf-cover:hover .mf-playbtn { transform: none; }
+#mod-fr .mf-item[data-g="2"] { opacity: 0.72; }

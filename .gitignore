@@ -1,0 +1,4 @@
+widget.json
+assets/
+node_modules/
+*.log

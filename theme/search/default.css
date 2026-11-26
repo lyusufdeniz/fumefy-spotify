@@ -1,0 +1,20 @@
+/* name: Expanding icon | desc: Only a magnifier sits in the top bar; on hover (or while typing) it smoothly expands into a search box | order: 0 */
+html #global-nav-bar div:has(> form[role="search"]) {
+  width: 46px !important; max-width: 46px !important; min-width: 46px; transition: width 0.32s cubic-bezier(.2, .8, .2, 1), max-width 0.32s cubic-bezier(.2, .8, .2, 1);
+}
+/* opens on hover; stays open if it has text or focus */
+html #global-nav-bar div:has(> form[role="search"]):is(:hover, :focus-within, :has(input:not(:placeholder-shown))) { width: 460px !important; max-width: 460px !important; }
+html #global-nav-bar div:has(> div > form[role="search"]) { max-width: none !important; width: auto !important; }
+html form[role="search"] { width: 100% !important; }
+html form[role="search"] input {
+  border-radius: 999px !important; height: 46px !important;
+  background: rgba(255, 255, 255, 0.08) !important; border: 1px solid transparent !important; box-shadow: none !important;
+}
+html form[role="search"] input:focus { background: rgba(255, 255, 255, 0.11) !important; border-color: rgba(255, 255, 255, 0.3) !important; }
+/* collapsed: only the magnifier; placeholder, shortcut hint and browse icon are hidden */
+html #global-nav-bar div:has(> form[role="search"]):not(:is(:hover, :focus-within, :has(input:not(:placeholder-shown)))) input::placeholder { color: transparent !important; }
+html #global-nav-bar div:has(> form[role="search"]):not(:is(:hover, :focus-within, :has(input:not(:placeholder-shown)))) :is(kbd, [data-testid="browse-button"]) { display: none !important; }
+html #global-nav-bar div:has(> form[role="search"]):not(:is(:hover, :focus-within, :has(input:not(:placeholder-shown)))) input { cursor: pointer; }
+/* placeholder hint when open ("What do you want to play?" + Ctrl L): Spotify measures and hides it while the box is narrow and doesn't restore it on expand */
+html #global-nav-bar div:has(> form[role="search"]):is(:hover, :focus-within) form[role="search"] input:placeholder-shown + div { opacity: 1 !important; }
+html #global-nav-bar div:has(> form[role="search"]):is(:hover, :focus-within) form[role="search"] input:placeholder-shown + div > span { visibility: visible !important; width: auto !important; }

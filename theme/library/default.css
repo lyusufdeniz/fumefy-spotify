@@ -1,0 +1,11 @@
+/* name: Pinned on top | desc: Three pinned items (or most recently opened) in big tiles on top; recently opened below | order: 0 */
+#mod-lib .ml-top { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 4px; }
+#mod-lib .ml-item.big { flex-direction: column; align-items: stretch; gap: 6px; padding: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; }
+#mod-lib .ml-item.big:hover { background: rgba(255, 255, 255, 0.1); }
+#mod-lib .ml-item.big .ml-cover { width: 100%; height: auto; aspect-ratio: 1; }
+#mod-lib .ml-item.big .ml-img { border-radius: 8px; }
+#mod-lib .ml-item.big .ml-img.round { border-radius: 50%; }
+#mod-lib .ml-item.big .ml-sub { display: none; }
+#mod-lib .ml-item.big .ml-title { font-size: 12px; text-align: center; }
+#mod-lib .ml-item.big .ml-play { border-radius: inherit; }
+#mod-lib .ml-item:not(.big) .ml-cover { width: 40px; height: 40px; }

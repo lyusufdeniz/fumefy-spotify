@@ -1,0 +1,17 @@
+/* name: Centered cover | desc: Album feel: cover centered with a shadow, title and details centered below | order: 0 */
+html #main-view section:is([data-testid="playlist-page"], [data-testid="album-page"]) > [data-testid="entity-header"] { height: auto !important; min-height: 0 !important; max-height: none !important; padding-bottom: 0 !important; }
+html #main-view section:is([data-testid="playlist-page"], [data-testid="album-page"]) > [data-testid="entity-header"] > div:last-child {
+  height: auto !important; min-height: 0 !important; flex-direction: column !important; align-items: center !important; text-align: center; gap: 20px; padding-block: 76px 0 !important; /* keep the cover from sitting under the top bar; otherwise Spotify shows the title bar right away */
+}
+html #main-view section:is([data-testid="playlist-page"], [data-testid="album-page"]) > [data-testid="entity-header"] > div:last-child > div:first-child { position: absolute !important; top: 0; left: 0; width: 1px !important; height: 100% !important; pointer-events: none; } /* Spotify observes this to show the top bar; if hidden, the bar stays visible all the time */
+html #main-view section:is([data-testid="playlist-page"], [data-testid="album-page"]) > [data-testid="entity-header"] > div:last-child > div:nth-child(2),
+html #main-view section:is([data-testid="playlist-page"], [data-testid="album-page"]) > [data-testid="entity-header"] > div:last-child > div:nth-child(2) :is(div:has(img), img) { width: 260px !important; height: 260px !important; min-width: 0 !important; margin: 0 !important; }
+html #main-view section:is([data-testid="playlist-page"], [data-testid="album-page"]) > [data-testid="entity-header"] > div:last-child > div:nth-child(2) { align-self: center !important; }
+html #main-view section:is([data-testid="playlist-page"], [data-testid="album-page"]) > [data-testid="entity-header"] > div:last-child > div:nth-child(2) img { border-radius: 16px !important; object-fit: cover; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55); }
+html #main-view section:is([data-testid="playlist-page"], [data-testid="album-page"]) > [data-testid="entity-header"] > div:last-child > div:nth-child(3) { align-items: center !important; width: 100% !important; gap: 8px; margin: 0 !important; padding: 0 !important; }
+html #main-view section:is([data-testid="playlist-page"], [data-testid="album-page"]) > [data-testid="entity-header"] > div:last-child > div:nth-child(3) > * { justify-content: center !important; text-align: center !important; }
+html #main-view section:is([data-testid="playlist-page"], [data-testid="album-page"]) > [data-testid="entity-header"] h1 { font-size: 44px !important; line-height: 1.1 !important; margin: 0 !important; }
+html #main-view section:is([data-testid="playlist-page"], [data-testid="album-page"]) > [data-testid="entity-header"] [data-testid="entityTitle"] { margin: 0 !important; }
+html #main-view section:is([data-testid="playlist-page"], [data-testid="album-page"]) [data-testid="action-bar-row"] { justify-content: center !important; }
+/* tight spacing between header and tracks: buttons right under the title */
+html #main-view section:is([data-testid="playlist-page"], [data-testid="album-page"]) [data-testid="action-bar"] { padding-block: 16px 8px !important; }

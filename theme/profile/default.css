@@ -1,0 +1,23 @@
+/* name: Artist orbit | desc: You in the center; this month's top artists around you, bigger and closer the more you listened | order: 0 */
+/* the orbit is added by mod.js (#mod-orbit) */
+html #main-view section:has(> div > [data-testid="entity-header"] [data-testid="user-image"]) > div > [data-testid="entity-header"] { height: auto !important; min-height: 0 !important; max-height: none !important; }
+html #main-view section:has(> div > [data-testid="entity-header"] [data-testid="user-image"]) > div > [data-testid="entity-header"] > div:last-child > div:first-child { position: absolute !important; top: 0; left: 0; width: 1px !important; height: 100% !important; pointer-events: none; }
+html #main-view section:has(> div > [data-testid="entity-header"] [data-testid="user-image"]) > div > [data-testid="entity-header"] > div:last-child { height: auto !important; min-height: 0 !important; flex-direction: column !important; align-items: center !important; text-align: center; gap: 8px; padding-block: 64px 8px !important; }
+html #main-view section:has(> div > [data-testid="entity-header"] [data-testid="user-image"]) > div > [data-testid="entity-header"] > div:last-child > div:has([data-testid="user-image"]) { display: none !important; }
+html #main-view section:has(> div > [data-testid="entity-header"] [data-testid="user-image"]) > div > [data-testid="entity-header"] > div:last-child > div:last-child { align-items: center !important; width: 100% !important; margin: 0 !important; padding: 0 !important; gap: 8px; }
+html #main-view section:has(> div > [data-testid="entity-header"] [data-testid="user-image"]) > div > [data-testid="entity-header"] > div:last-child > div:last-child > * { justify-content: center !important; text-align: center !important; }
+html #main-view section:has(> div > [data-testid="entity-header"] [data-testid="user-image"]) > div > [data-testid="entity-header"] > div:last-child > div:last-child > span:first-child { display: none !important; }
+html #main-view section:has(> div > [data-testid="entity-header"] [data-testid="user-image"]) > div > [data-testid="entity-header"] h1 { font-size: 48px !important; line-height: 1.1 !important; margin: 0 !important; }
+html #main-view section:has(> div > [data-testid="entity-header"] [data-testid="user-image"]) > div > [data-testid="entity-header"] [data-testid="entityTitle"] { margin: 0 !important; }
+#mod-orbit { position: relative; width: 100%; height: 330px; flex: none; }
+#mod-orbit .mo-me { position: absolute; left: 50%; top: 50%; width: 156px; height: 156px; margin: -78px 0 0 -78px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.08), 0 0 0 22px rgba(255, 255, 255, 0.035), 0 20px 50px rgba(0, 0, 0, 0.5); }
+#mod-orbit .mo-b { all: unset; position: absolute; left: 50%; top: 50%; width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); transform: translate(var(--x), var(--y)); border-radius: 50%; overflow: hidden; cursor: pointer; background: #2a2b30; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45); transition: transform 0.2s; animation: mo-float 6s ease-in-out var(--d) infinite; }
+#mod-orbit .mo-b img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#mod-orbit .mo-b:hover { transform: translate(var(--x), var(--y)) scale(1.08); animation-play-state: paused; }
+#mod-orbit .mo-b:focus-visible { box-shadow: 0 0 0 3px #fff; }
+@keyframes mo-float { 0%, 100% { margin-top: calc(var(--s) / -2); } 50% { margin-top: calc(var(--s) / -2 - 6px); } }
+@media (prefers-reduced-motion: reduce) { #mod-orbit .mo-b { animation: none; } }
+/* the orbit artists come from this section; don't show it again below (invisible but in place so its images load) */
+html #main-view [data-testid="component-shelf"][data-mod-orbit-src="1"] { position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important; clip-path: inset(50%) !important; opacity: 0 !important; pointer-events: none !important; margin: 0 !important; }
+/* tight spacing between the button row and the sections */
+html #main-view section:has(> div > [data-testid="entity-header"] [data-testid="user-image"]) [data-testid="action-bar"] { padding-block: 8px 0 !important; }
